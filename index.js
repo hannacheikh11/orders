@@ -29,8 +29,12 @@ app.get("/", (req,res) => {
            }else{
 
         
-        res.send(orders);
-           }
+        res.send(orders.map((order) => {
+            delete order._id;
+            return order;
+
+        }));
+    }
     });
 });
 
