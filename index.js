@@ -1,7 +1,7 @@
 var express= require('express');
 var bodyParser = require('body-parser');
 var DataStore = require ('nedb');
-var port =3000;
+var port =(process.env.PORT || 3000);
 var BASE_API_PATH="/api/V2";
 var  DB_FILE_NAME = __dirname + "/orders.json";
 console.log("Starting API server...");
