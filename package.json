@@ -10,7 +10,7 @@
   "homepage": "https://github.com/hannacheikh11/orders",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "hanna",
   "license": "ISC",
@@ -24,7 +24,10 @@
     "eslint-plugin-prettier": "^3.3.0",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^2.5.1",
-    "prettier": "^2.2.1"
+    "jest": "^26.6.3",
+    "jest-extended": "^0.11.5",
+    "prettier": "^2.2.1",
+    "supertest": "^6.1.1"
   },
   "dependencies": {
     "express": "^4.17.1",
