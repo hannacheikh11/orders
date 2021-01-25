@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-   // _id:String,
-
-    
-        Name: String,
+   
+  cod: {type: String}, 
+        name: String,
         
         DNI:String,
-        Adress:String,
+        address:String,
         email:String,
         total: Number,
 
@@ -29,7 +28,7 @@ const orderSchema = new mongoose.Schema({
 
 cartItems: [
     {
-        //_id: String,
+        
         title: String, 
         price: Number,
         count: Number 
@@ -45,7 +44,7 @@ cartItems: [
 );
 
 orderSchema.methods.cleanup = function() {
-    return {_id: this._id,Name:this.Name,DNI:this.DNI,lastName:this.lastName,email:this.email,total:this.total,status:this.status
+    return {cod: this.cod,name:this.name, DNI:this.DNI,email:this.email,total:this.total,status:this.status
         
         , created: this.created,cartItems:this.cartItems};
 }

@@ -1,9 +1,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-const Order = require('./orders');
+//const Order = require('./orders');
 const db = require('./db.js');
 const { count } = require('./orders');
 const { Mongoose } = require('mongoose');
+const ProductResource = require('./productResource');
+const order = require('./orders');
 
 var BASE_API_PATH = "/api/v1";
 
@@ -17,18 +19,29 @@ app.get("/", (req, res) => {
 app.get(BASE_API_PATH + "/orders", (req, res) => {
     console.log(Date() + " - GET /orders");
 
-    Order.find({}, (err, orders) => {
+    order.find({}, (err, orders) => {
         if (err) {
             console.log(Date() + "-" + err);
             res.sendStatus(500);
         } else {
-            res.send(orders.map((order) => {
-                return order.cleanup();
+            res.send(orders.map((or) => {
+                return or.cleanup();
             }));
         }
     });
 
 });
+
+
+//get de todos los producto para crear el order
+app.get(BASE_API_PATH  + "/products",(req,res)=>
+{
+    console.log("GET/products");
+    ProductResource.getAllProducts().then((body)=>{
+        res.send(body);
+
+    })
+})
 // the post methode
 //app.post(BASE_API_PATH + "/orders", (req, res) => {
     //console.log(Date() + " - POST /orders");
@@ -44,9 +57,9 @@ app.get(BASE_API_PATH + "/orders", (req, res) => {
 //});
 
 
-app.post(BASE_API_PATH + "/orders", (req, res) => {
-    console.log(Date() + " - POST /orders");
-   var order=req.body;
+//app.post(BASE_API_PATH + "/orders", (req, res) => {
+//    console.log(Date() + " - POST /orders");
+ //  var order=req.body;
        
           //_id=req.body._id ,
           
@@ -58,18 +71,32 @@ app.post(BASE_API_PATH + "/orders", (req, res) => {
          // created=req.body.created,
           //status=req.body.status,
         // cartItems=req.body.cartItems;
-
+       // new_order = new Order(order.order)
        
-       Order.create(order, (err) => {
+      // new_order.save((err, order) => {
+       // if (err) {
+         // console.log(Date() + " - " + err);
+          //  res.sendStatus(500);
+       //} else {
+        //   res.sendStatus(201);
+      // }
+   // });
+//});
+
+
+
+app.post(BASE_API_PATH + "/orders", (req, res) => {
+    console.log(Date() + "- POST /orders");
+    var or = req.body;
+    order.create(or, (err) => {
         if (err) {
-          console.log(Date() + " - " + err);
+            console.log(Date() + " - " + err);
             res.sendStatus(500);
-       } else {
-           res.sendStatus(201);
-       }
+        } else {
+            res.sendStatus(201);
+        }
     });
 });
-   
 // the put methode
 
 //app.put(BASE_API_PATH +"/orders/_id", async (req, res) => {
@@ -91,7 +118,7 @@ app.post(BASE_API_PATH + "/orders", (req, res) => {
     //});
     
 
-    app.put(BASE_API_PATH + "/orders/:_id",(req,res)=>{
+   /* app.put(BASE_API_PATH + "/orders/:_id",(req,res)=>{
         console.log(Date() + " - PUT /orders/" + req.params._id);
         Order.findOne({_id: req.params._id}, (err, order)=>{
             if(err){
@@ -124,22 +151,81 @@ app.post(BASE_API_PATH + "/orders", (req, res) => {
             }
             
         })
-    });
+    });*/
 
 
+
+
+    //Actualizar el email del pedido
+
+  
 
 // the delete methode
-app.delete(BASE_API_PATH +"/orders/_id",  (req, res) => {
-    console.log(Date() + " - Delete /orders/"+req.params._id);
+//app.delete(BASE_API_PATH +"/orders/:_id",  (req, res) => {
+   // console.log(Date() + " - Delete /orders/"+req.params._id);
     
-    Order.findOneAndRemove({_id: req.params._id}, (err, order)=>{
-        if(err){
+    //Order.findOneAndRemove({_id: req.params._id}, (err, order)=>{
+      //  if(err){
+          //  console.log(Date() + " - " + err);
+           // res.sendStatus(500);
+        //}else{
+           // res.sendStatus(204);
+       // }
+    //})
+//});
+
+app.delete(BASE_API_PATH + "/orders" + '/:cod', (req, res) => {
+    console.log(Date() + "- DELETE /orders/cod");
+    var cod = req.params.cod;
+    console.log(cod);
+    order
+    .deleteOne({cod: cod}, (err) => {
+        if (err) {
+            console.log(Date() + " - " + err);
+            res,sendStatus(500);
+        } else {
+            res.sendStatus(204);
+            console.log("Se elimino el order con Cod:  " + cod);
+        }
+    });
+});
+
+// eliminar todo orders
+
+app.delete(BASE_API_PATH + "/orders",
+    
+    (req, res) => {
+    console.log(Date() + "- DELETE /orders");
+    order.deleteMany({}, {multi: true}, (err) => {
+        if (err) {
             console.log(Date() + " - " + err);
             res.sendStatus(500);
-        }else{
+        } else {
             res.sendStatus(204);
         }
-    })
+    });
+
+    app.put(BASE_API_PATH + "/orders" + '/:cod',
+    
+    (req, res) => {
+    console.log(Date() + "- DELETE /orders/cod");
+    order.updateOne({cod: req.params.cod}, {$set:{cod: req.body.cod, 
+        name: req.body.name,
+        DNI: req.body.DNI, 
+        address: req.body.address, 
+        email: req.body.email,
+        total: req.body.total,
+        }},  (err)  => {
+        if (err) {
+            console.log(Date() + " - " + err);
+            res.sendStatus(500);
+        } else {
+            res.status(200).send('Updated order');
+        }
+      });
+});
+
+
 });
  module.exports = app;
  

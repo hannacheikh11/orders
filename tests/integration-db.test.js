@@ -14,7 +14,7 @@ describe('Orders DB connection', () => {
     });
 
     it('writes a order in the DB', (done) => {
-        const order = new Order({Name: "lala",
+        const order = new Order({name: "lala",
         DNI: "QnQ6QQ",
         email:"ahqhh@gmail.com",
         total: 16,

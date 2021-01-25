@@ -1,7 +1,9 @@
 const app = require('../server.js');
 const request = require('supertest');
-//const db = require('../db.js');
-const Order= require('../orders.js');
+const db = require('../db.js');
+const order= require('../orders.js');
+
+const { query } = require('express');
 
 describe("Hello world tests", () => {
 
@@ -31,8 +33,8 @@ describe("Orders API", () => {
     describe("GET /orders", () => {
 
         beforeAll(() => {
-            const order = [
-             new Order     ( {"Name": "hanna",
+            const or = [
+             new order    ( {"Name": "hanna",
                     "DNI": "QQQQQQ",
                     "email":"ah@gmail.com",
                     "total": 1,
@@ -49,9 +51,9 @@ describe("Orders API", () => {
                 })
             ];
 
-            dbFind = jest.spyOn(Order, "find");
+            dbFind = jest.spyOn(or, "find");
             dbFind.mockImplementation((query, callback) => {
-                callback(null, order);
+                callback(null, or);
             });
         });
 
@@ -64,7 +66,7 @@ describe("Orders API", () => {
         });
     });
     describe('POST /orders', () => {
-        const order = {Name: "lala",
+        const or = {Name: "lala",
         DNI: "QnQ6QQ",
         email:"ahqhh@gmail.com",
         total: 16,
@@ -82,7 +84,7 @@ describe("Orders API", () => {
         let dbInsert;
 
         beforeEach(() => {
-            dbInsert = jest.spyOn(Order, "create");
+            dbInsert = jest.spyOn(order, "create");
         });
 
         it('Should add a new order if everything is fine', () => {
@@ -90,9 +92,9 @@ describe("Orders API", () => {
                 callback(false);
             });
 
-            return request(app).post('/api/v2/orders').send(order).then((response) => {
+            return request(app).post('/api/v2/orders').send(or).then((response) => {
                 expect(response.statusCode).toBe(201);
-                expect(dbInsert).toBeCalledWith(order, expect.any(Function));
+                expect(dbInsert).toBeCalledWith(or, expect.any(Function));
             });
         });
 
@@ -101,7 +103,38 @@ describe("Orders API", () => {
                 callback(true);
             });
 
-            return request(app).post('/api/v2/orders').send(order).then((response) => {
+            return request(app).post('/api/v2/orders').send(or).then((response) => {
+                expect(response.statusCode).toBe(500);
+            });
+        });
+    });
+
+
+    describe('DELETE /orders', () => {
+        
+        beforeEach(() => {
+        dbRemove = jest.spyOn(order, "deleteMany");
+        });
+
+        it('Should delete all order', () => {
+            dbRemove.mockImplementation((query, c, callback) =>{
+                callback(false);
+            });
+
+            return request(app).delete('/api/v1/orders')
+            .then((response) =>{
+                expect(response.statusCode).toBe(204);
+                expect(response.body).toBeNaN();
+                expect(dbRemove).toBeCalledWith({}, {multi: true}, expect.any(Function));
+            });
+        });
+
+        it('Shoul return an error in DB',() => {
+            dbRemove.mockImplementation((query, c, callback) => {
+                callback(true);
+            });
+            return request(app).delete('/api/v1/orders')
+            .then((response) => {
                 expect(response.statusCode).toBe(500);
             });
         });
