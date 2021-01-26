@@ -10,7 +10,7 @@
   "homepage": "https://github.com/hannacheikh11/orders",
   "scripts": {
     "start": "node index.js",
-    "test": "jest"
+    "test": "jest --testTimeout 50000"
   },
   "author": "hanna",
   "license": "ISC",

@@ -205,27 +205,30 @@ app.delete(BASE_API_PATH + "/orders",
         }
     });
 
-    app.put(BASE_API_PATH + "/orders" + '/:cod',
     
-    (req, res) => {
+
+});
+
+app.put(BASE_API_PATH + "/order" + "/info"+ "/:cod",(req, res) => {
+    console.log(req.params.cod);
     console.log(Date() + "- DELETE /orders/cod");
     order.updateOne({cod: req.params.cod}, {$set:{cod: req.body.cod, 
-        name: req.body.name,
-        DNI: req.body.DNI, 
-        address: req.body.address, 
-        email: req.body.email,
-        total: req.body.total,
-        }},  (err)  => {
-        if (err) {
-            console.log(Date() + " - " + err);
-            res.sendStatus(500);
-        } else {
-            res.status(200).send('Updated order');
-        }
-      });
+    name: req.body.name,
+    DNI: req.body.DNI, 
+    address: req.body.address, 
+    email: req.body.email,
+    total: req.body.total,
+    }},  (err)  => {
+    if (err) {
+        console.log(Date() + " - " + err);
+        res.sendStatus(500);
+    } else {
+        res.status(200).send('Updated order');
+    }
+    });
 });
 
 
-});
+
  module.exports = app;
  

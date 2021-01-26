@@ -2,8 +2,8 @@ const app = require('../server.js');
 const request = require('supertest');
 const db = require('../db.js');
 const order= require('../orders.js');
-
-const { query } = require('express');
+const { response, query } = require('express');
+//const { query } = require('express');
 
 describe("Hello world tests", () => {
 
@@ -31,7 +31,7 @@ describe("Orders API", () => {
     });
 
     describe("GET /orders", () => {
-
+        
         beforeAll(() => {
             const or = [
              new order    ( {"Name": "hanna",
@@ -51,14 +51,14 @@ describe("Orders API", () => {
                 })
             ];
 
-            dbFind = jest.spyOn(or, "find");
+            dbFind = jest.spyOn(order, "find");
             dbFind.mockImplementation((query, callback) => {
                 callback(null, or);
             });
         });
 
         it('Should return all orders', () => {
-            return request(app).get('/api/v2/orders').then((response) => {
+            return request(app).get('/api/v1/orders').then((response) => {
                 expect(response.statusCode).toBe(200);
                 expect(response.body).toBeArrayOfSize(1);
                 expect(dbFind).toBeCalledWith({}, expect.any(Function));
@@ -92,7 +92,7 @@ describe("Orders API", () => {
                 callback(false);
             });
 
-            return request(app).post('/api/v2/orders').send(or).then((response) => {
+            return request(app).post('/api/v1/orders').send(or).then((response) => {
                 expect(response.statusCode).toBe(201);
                 expect(dbInsert).toBeCalledWith(or, expect.any(Function));
             });
@@ -103,11 +103,63 @@ describe("Orders API", () => {
                 callback(true);
             });
 
-            return request(app).post('/api/v2/orders').send(or).then((response) => {
+            return request(app).post('/api/v1/orders').send(or).then((response) => {
                 expect(response.statusCode).toBe(500);
             });
         });
     });
+
+
+
+
+
+
+
+    describe('PUT /order', () => {
+        let dbUpdate;
+
+        const or = {cod: "A65321782",
+        name: "hola 3",
+        DNI: "12345t",
+        address: "Malaga",
+        email: "or3@gmail.com",
+        total: 13,
+        };
+
+        beforeEach(() => {
+        dbUpdate = jest.spyOn(order, "updateOne");
+        });
+
+        it('Should update a  order', () => {
+            dbUpdate.mockImplementation((query,a,callback) =>{
+                callback(false);
+            });
+
+            return request(app).put("/api/v1/order/info/A65321782")
+            .send(or)
+            .then((response) =>{
+                expect(response.statusCode).toBe(200);
+                expect(or.name).toEqual("hola 3");
+                expect(response.text).toEqual(expect.stringContaining("order Updated"));
+            });
+        });
+
+        it('Should return an error in DB', () => {
+            dbUpdate.mockImplementation((query,c,d, callback) => {
+                callback(true);
+            });
+
+            return request(app).put("/api/v1/order/info/A65321782")
+            .send(or)
+            .then((response) => {
+                expect(response.statusCode).toBe(500);
+            });
+
+        });
+
+        
+    });
+
 
 
     describe('DELETE /orders', () => {
