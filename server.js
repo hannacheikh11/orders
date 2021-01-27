@@ -4,19 +4,23 @@ var bodyParser = require('body-parser');
 const db = require('./db.js');
 const { count } = require('./orders');
 const { Mongoose } = require('mongoose');
-const ProductResource = require('./productResource');
-const order = require('./orders');
 
+const order = require('./orders');
+const passport = require('passport');
+require('./passport.js');
 var BASE_API_PATH = "/api/v1";
 
 var app = express();
 app.use(bodyParser.json());
+app.use(passport.initialize());
 
 app.get("/", (req, res) => {
     res.send("<html><body><h1>My server</h1></body></html>");
 });
 
-app.get(BASE_API_PATH + "/orders", (req, res) => {
+app.get(BASE_API_PATH + "/orders",
+passport.authenticate('localapikey', {session: false}),
+(req, res) => {
     console.log(Date() + " - GET /orders");
 
     order.find({}, (err, orders) => {
@@ -34,14 +38,7 @@ app.get(BASE_API_PATH + "/orders", (req, res) => {
 
 
 //get de todos los producto para crear el order
-app.get(BASE_API_PATH  + "/products",(req,res)=>
-{
-    console.log("GET/products");
-    ProductResource.getAllProducts().then((body)=>{
-        res.send(body);
 
-    })
-})
 // the post methode
 //app.post(BASE_API_PATH + "/orders", (req, res) => {
     //console.log(Date() + " - POST /orders");
